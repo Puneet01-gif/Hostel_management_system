@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Security Dashboard - {{ staff.name|default:"Security Staff" }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-red-600 to-red-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Security Dashboard</h1>
+                        <p class="text-sm text-red-100">{{ staff.name|default:"Security Staff" }} - Gate Management</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Refresh Button -->
+                    <button onclick="location.reload()" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                    
+                    <!-- User Profile Menu -->
+                    <div class="relative">
+                        <button id="userMenuButton" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ staff.name|default:"Profile" }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+                            <a href="{% url 'security_profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user-circle mr-2"></i>My Profile
+                            </a>
+                            <a href="{% url 'change_password' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-key mr-2"></i>Change Password
+                            </a>
+                            <hr class="my-1">
+                            <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-id-card text-green-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Active Passes</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ active_passes_count|default:0 }}</p>
+                        <p class="text-xs text-gray-500">Valid today</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-walking text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Students Away</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ students_away_count|default:0 }}</p>
+                        <p class="text-xs text-gray-500">Currently outside</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-500">
+                <div class="flex items-center">
+                    <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-clock text-purple-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Today's Date</p>
+                        <p class="text-xl font-bold text-gray-900">{{ today|date:"d M Y" }}</p>
+                        <p class="text-xs text-gray-500">Current shift</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Pass Verification Panel -->
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200 bg-red-50 rounded-t-xl">
+                    <h2 class="text-lg font-semibold text-red-800">
+                        <i class="fas fa-qrcode mr-2"></i>Verify Digital Pass
+                    </h2>
+                    <p class="text-sm text-red-600">Enter pass number or search by student name</p>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Pass Number Verification -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pass Number</label>
+                        <div class="flex space-x-3">
+                            <input type="text" id="passNumber" placeholder="e.g., LP-20260131-1234" 
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-mono text-lg">
+                            <button onclick="verifyPass()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                                <i class="fas fa-search mr-2"></i>Verify
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">OR</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Student Search -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search by Student Name</label>
+                        <div class="flex space-x-3">
+                            <input type="text" id="studentSearch" placeholder="Enter student name or ID" 
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                            <button onclick="searchStudent()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-user-search mr-2"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Verification Result -->
+                    <div id="verificationResult" class="mt-6 hidden">
+                        <!-- Result will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Verifications -->
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-history mr-2"></i>Recent Verifications
+                    </h2>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-4" id="recentVerifications">
+                        {% if recent_verifications %}
+                            {% for record in recent_verifications %}
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-{% if record.status == 'allowed_to_leave' %}green{% elif record.status == 'returned' %}blue{% else %}red{% endif %}-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-{% if record.status == 'allowed_to_leave' %}sign-out-alt{% elif record.status == 'returned' %}sign-in-alt{% else %}ban{% endif %} text-{% if record.status == 'allowed_to_leave' %}green{% elif record.status == 'returned' %}blue{% else %}red{% endif %}-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ record.student.name }}</p>
+                                        <p class="text-xs text-gray-500">{{ record.verification_time|time:"H:i" }} - {{ record.status|title }}</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded-full {% if record.status == 'allowed_to_leave' %}bg-green-100 text-green-800{% elif record.status == 'returned' %}bg-blue-100 text-blue-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ record.status|title }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-clipboard-list text-4xl mb-3"></i>
+                                <p>No verifications today</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="mt-8 bg-white rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-bolt mr-2"></i>Quick Actions
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="/api/security/active-passes/" target="_blank" class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                    <i class="fas fa-list-alt text-green-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-green-800">View All Active Passes</span>
+                </a>
+                <a href="/api/security/export-report/" target="_blank" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <i class="fas fa-file-download text-blue-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-blue-800">Export Report</span>
+                </a>
+                <button onclick="showBulkVerify()" class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                    <i class="fas fa-users text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-purple-800">Bulk Verify</span>
+                </button>
+                <button onclick="showEmergencyMode()" class="flex flex-col items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-red-800">Emergency Mode</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Result Modal -->
+<div id="resultModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 max-w-md mx-4 w-full">
+        <div id="resultContent">
+            <!-- Result content will be inserted here -->
+        </div>
+        <button onclick="closeResultModal()" class="mt-4 w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
+            Close
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // User menu toggle
+    document.getElementById('userMenuButton').addEventListener('click', function() {
+        document.getElementById('userMenu').classList.toggle('hidden');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('userMenu');
+        const button = document.getElementById('userMenuButton');
+        if (!button.contains(event.target) && !menu.contains(event.target)) {
+            menu.classList.add('hidden');
+        }
+    });
+    
+    // Verify pass function
+    function verifyPass() {
+        const passNumber = document.getElementById('passNumber').value.trim();
+        if (!passNumber) {
+            alert('Please enter a pass number');
+            return;
+        }
+        
+        fetch('/api/verify-pass/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ pass_number: passNumber })
+        })
+        .then(response => response.json())
+        .then(data => {
+            showResult(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showResult({ success: false, error: 'Failed to verify pass' });
+        });
+    }
+    
+    // Search student function
+    function searchStudent() {
+        const query = document.getElementById('studentSearch').value.trim();
+        if (!query) {
+            alert('Please enter a student name or ID');
+            return;
+        }
+        
+        fetch(`/api/security/search-students/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            showSearchResults(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to search students');
+        });
+    }
+    
+    // Show verification result
+    function showResult(data) {
+        const resultDiv = document.getElementById('verificationResult');
+        resultDiv.classList.remove('hidden');
+        
+        if (data.success && data.pass_data) {
+            const pass = data.pass_data;
+            resultDiv.innerHTML = `
+                <div class="p-4 rounded-lg ${pass.is_valid ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-${pass.is_valid ? 'check-circle text-green-600' : 'times-circle text-red-600'} text-2xl mr-3"></i>
+                        <span class="font-semibold text-lg ${pass.is_valid ? 'text-green-800' : 'text-red-800'}">
+                            ${pass.is_valid ? 'VALID PASS' : 'INVALID PASS'}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div><span class="text-gray-600">Student:</span> <strong>${pass.student_name}</strong></div>
+                        <div><span class="text-gray-600">Room:</span> <strong>${pass.room_number}</strong></div>
+                        <div><span class="text-gray-600">From:</span> <strong>${pass.from_date}</strong></div>
+                        <div><span class="text-gray-600">To:</span> <strong>${pass.to_date}</strong></div>
+                        <div class="col-span-2"><span class="text-gray-600">Pass #:</span> <strong>${pass.pass_number}</strong></div>
+                    </div>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="p-4 rounded-lg bg-red-50 border border-red-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-600 text-2xl mr-3"></i>
+                        <span class="font-semibold text-red-800">${data.error || 'Pass not found'}</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Show search results
+    function showSearchResults(data) {
+        const resultDiv = document.getElementById('verificationResult');
+        resultDiv.classList.remove('hidden');
+        
+        if (data.success && data.students && data.students.length > 0) {
+            let html = '<div class="space-y-2">';
+            data.students.forEach(student => {
+                html += `
+                    <div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
+                        <div>
+                            <p class="font-medium">${student.name}</p>
+                            <p class="text-xs text-gray-500">Room ${student.room_number} - ${student.student_id}</p>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full ${student.has_active_pass ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${student.has_active_pass ? 'Has Pass' : 'No Pass'}
+                        </span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200">
+                    <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
+                    <span class="text-yellow-800">No students found</span>
+                </div>
+            `;
+        }
+    }
+    
+    function showBulkVerify() {
+        alert('Bulk verification feature - Coming soon!');
+    }
+    
+    function showEmergencyMode() {
+        if (confirm('Are you sure you want to enable Emergency Mode? This will restrict all student exits.')) {
+            alert('Emergency Mode activated. Contact administration.');
+        }
+    }
+    
+    function closeResultModal() {
+        document.getElementById('resultModal').classList.add('hidden');
+    }
+    
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Enter key handlers
+    document.getElementById('passNumber').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') verifyPass();
+    });
+    
+    document.getElementById('studentSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchStudent();
+    });
+</script>
+{% endblock %}

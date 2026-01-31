@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Student Dashboard - Hostel Coordination System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo and Title -->
+                <div class="flex items-center">
+                    <div class="bg-blue-100 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-building text-blue-600"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold text-gray-800">Hostel Student Dashboard</h1>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-gray-800">{{ student.name }}</div>
+                        <div class="text-xs text-gray-600">Room {{ student.room_number }}, Block {{ student.block }}</div>
+                    </div>
+                    <div class="relative">
+                        <button id="userMenuButton" class="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+                            <a href="/student/profile/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user-circle mr-2"></i>Profile
+                            </a>
+                            <a href="/auth/change-password/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-key mr-2"></i>Change Password
+                            </a>
+                            <hr class="my-1">
+                            <a href="/auth/logout/" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl text-white p-8 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Welcome back, {{ student.name }}!</h2>
+                    <p class="text-blue-100">Room {{ student.room_number }}, Block {{ student.block }} • Student ID: {{ student.student_id }}</p>
+                </div>
+                <div class="hidden md:block">
+                    <div class="bg-white bg-opacity-20 rounded-full w-20 h-20 flex items-center justify-center">
+                        <i class="fas fa-user-graduate text-4xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">Quick Actions</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="/chat/" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg p-4 transition-colors group">
+                        <div class="flex items-center">
+                            <div class="bg-blue-500 w-12 h-12 rounded-lg flex items-center justify-center mr-4 group-hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-comments text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">AI Chat</div>
+                                <div class="text-sm text-gray-600">Send requests</div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <button onclick="openLeaveRequestModal()" class="bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg p-4 transition-colors group text-left">
+                        <div class="flex items-center">
+                            <div class="bg-green-500 w-12 h-12 rounded-lg flex items-center justify-center mr-4 group-hover:bg-green-600 transition-colors">
+                                <i class="fas fa-calendar-alt text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">Leave Request</div>
+                                <div class="text-sm text-gray-600">Apply for leave</div>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <a href="/student/profile/" class="bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg p-4 transition-colors group">
+                        <div class="flex items-center">
+                            <div class="bg-purple-500 w-12 h-12 rounded-lg flex items-center justify-center mr-4 group-hover:bg-purple-600 transition-colors">
+                                <i class="fas fa-user-circle text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">My Profile</div>
+                                <div class="text-sm text-gray-600">View profile</div>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <button onclick="openMaintenanceRequestModal()" class="bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg p-4 transition-colors group text-left">
+                        <div class="flex items-center">
+                            <div class="bg-orange-500 w-12 h-12 rounded-lg flex items-center justify-center mr-4 group-hover:bg-orange-600 transition-colors">
+                                <i class="fas fa-tools text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">Maintenance</div>
+                                <div class="text-sm text-gray-600">Report issues</div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Requests Grid (3 columns) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Guest Requests -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-user-friends text-blue-500 mr-2"></i>Guest Requests
+                        </h3>
+                        <button onclick="openGuestRequestModal()" class="text-blue-600 hover:text-blue-700 text-sm">
+                            <i class="fas fa-plus mr-1"></i>
+                        </button>
+                    </div>
+                    <div id="guestRequestsList" class="space-y-3 max-h-96 overflow-y-auto">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p class="text-sm">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maintenance Requests -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-wrench text-orange-500 mr-2"></i>Maintenance
+                        </h3>
+                        <button onclick="openMaintenanceRequestModal()" class="text-blue-600 hover:text-blue-700 text-sm">
+                            <i class="fas fa-plus mr-1"></i>
+                        </button>
+                    </div>
+                    <div id="maintenanceRequestsList" class="space-y-3 max-h-96 overflow-y-auto">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p class="text-sm">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Passes Column -->
+                <div class="space-y-6">
+                    <!-- Approved Digital Passes -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>Approved Passes
+                            </h3>
+                            <button onclick="refreshDigitalPasses()" class="text-blue-600 hover:text-blue-700 text-sm">
+                                <i class="fas fa-sync-alt mr-1"></i>
+                            </button>
+                        </div>
+                        <div id="approvedPassesList" class="space-y-3 max-h-48 overflow-y-auto">
+                            <div class="text-center py-6 text-gray-500">
+                                <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                                <p class="text-xs">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Digital Passes -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                <i class="fas fa-clock text-yellow-500 mr-2"></i>Pending Passes
+                            </h3>
+                        </div>
+                        <div id="pendingPassesList" class="space-y-3 max-h-48 overflow-y-auto">
+                            <div class="text-center py-6 text-gray-500">
+                                <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                                <p class="text-xs">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Quick Info -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Info</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Student ID:</span>
+                            <span class="font-medium">{{ student.student_id }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Room:</span>
+                            <span class="font-medium">{{ student.room_number }}, Block {{ student.block }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Email:</span>
+                            <span class="font-medium">{{ student.email }}</span>
+                        </div>
+                        {% if student.mobile_number %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Mobile:</span>
+                            <span class="font-medium">{{ student.mobile_number }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Help & Support -->
+                <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Need Help?</h3>
+                    <p class="text-sm text-gray-600 mb-4">Use our AI assistant for quick help with requests and questions.</p>
+                    <a href="/chat/" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-robot mr-2"></i>Chat with AI
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Request Modal -->
+    <div id="leaveRequestModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Leave Request</h3>
+                <button onclick="closeLeaveRequestModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="leaveRequestForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                        <input type="date" id="fromDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                        <input type="date" id="toDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Days</label>
+                    <input type="number" id="totalDays" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                    <textarea id="reason" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter reason for leave"></textarea>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeLeaveRequestModal()" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Digital Pass Modal -->
+    <div id="digitalPassModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800">Leave Approved!</h3>
+                <p class="text-gray-600 mt-2" id="approvalMessage">Your digital pass has been generated</p>
+            </div>
+            
+            <!-- Digital Pass Display -->
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl text-white p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="font-semibold text-lg">Digital Leave Pass</h4>
+                        <p class="text-blue-100 text-sm">{{ student.name }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-blue-100 text-xs">Pass Number</p>
+                        <p class="font-mono font-bold" id="passNumber">-</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-blue-200">From Date</p>
+                        <p class="font-semibold" id="passFromDate">-</p>
+                    </div>
+                    <div>
+                        <p class="text-blue-200">To Date</p>
+                        <p class="font-semibold" id="passToDate">-</p>
+                    </div>
+                    <div>
+                        <p class="text-blue-200">Total Days</p>
+                        <p class="font-semibold" id="passTotalDays">-</p>
+                    </div>
+                    <div>
+                        <p class="text-blue-200">Verification Code</p>
+                        <p class="font-mono font-semibold" id="verificationCode">-</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-blue-400">
+                    <p class="text-blue-200 text-xs">Student Details</p>
+                    <p class="text-sm">{{ student.student_id }} • Room {{ student.room_number }}, Block {{ student.block }}</p>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="downloadPass()" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-download mr-2"></i>Download PDF
+                </button>
+                <button onclick="closeDigitalPassModal()" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guest Request Modal -->
+    <div id="guestRequestModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Guest Request</h3>
+                <button onclick="closeGuestRequestModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="guestRequestForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Guest Name</label>
+                    <input type="text" id="guestName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter guest's name">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Guest Phone</label>
+                    <input type="tel" id="guestPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter guest's phone number">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Arrival Date & Time</label>
+                        <input type="datetime-local" id="guestStartDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Departure Date & Time</label>
+                        <input type="datetime-local" id="guestEndDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Purpose of Visit</label>
+                    <textarea id="guestPurpose" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter reason for guest visit"></textarea>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeGuestRequestModal()" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Maintenance Request Modal -->
+    <div id="maintenanceRequestModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Maintenance Request</h3>
+                <button onclick="closeMaintenanceRequestModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="maintenanceRequestForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Issue Type</label>
+                    <select id="issueType" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select issue type</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="hvac">HVAC/Air Conditioning</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="cleaning">Cleaning</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                    <select id="maintenancePriority" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="emergency">Emergency</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Issue Description</label>
+                    <textarea id="maintenanceDescription" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Describe the maintenance issue"></textarea>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeMaintenanceRequestModal()" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // User menu toggle
+        document.getElementById('userMenuButton').addEventListener('click', function() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const button = document.getElementById('userMenuButton');
+            const menu = document.getElementById('userMenu');
+            
+            if (!button.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Leave request modal functions
+        function openLeaveRequestModal() {
+            document.getElementById('leaveRequestModal').classList.remove('hidden');
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fromDate').min = today;
+            document.getElementById('toDate').min = today;
+        }
+
+        function closeLeaveRequestModal() {
+            document.getElementById('leaveRequestModal').classList.add('hidden');
+            document.getElementById('leaveRequestForm').reset();
+        }
+
+        // Calculate total days
+        function calculateDays() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            
+            if (fromDate && toDate) {
+                const from = new Date(fromDate);
+                const to = new Date(toDate);
+                const diffTime = Math.abs(to - from);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Include both start and end dates
+                document.getElementById('totalDays').value = diffDays;
+            }
+        }
+
+        document.getElementById('fromDate').addEventListener('change', function() {
+            const fromDate = this.value;
+            document.getElementById('toDate').min = fromDate;
+            calculateDays();
+        });
+
+        document.getElementById('toDate').addEventListener('change', calculateDays);
+
+        // Handle leave request form submission
+        document.getElementById('leaveRequestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const totalDays = document.getElementById('totalDays').value;
+            const reason = document.getElementById('reason').value;
+            
+            if (!fromDate || !toDate || !reason) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Show loading state
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            submitButton.disabled = true;
+            
+            // Submit enhanced leave request
+            fetch('/api/submit-leave-request/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    from_date: fromDate,
+                    to_date: toDate,
+                    reason: reason
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = '/auth/login/';
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return; // Redirect triggered
+                if (data.success) {
+                    closeLeaveRequestModal();
+                    
+                    if (data.auto_approved && data.digital_pass) {
+                        // Show success modal with digital pass
+                        showDigitalPassModal(data.digital_pass, data.message);
+                    } else if (data.requires_warden_approval) {
+                        // Show warden approval message
+                        alert(`✅ ${data.message}\n\nYour request has been sent to the warden for approval. You will be notified once a decision is made.`);
+                    } else {
+                        alert(`✅ ${data.message}`);
+                    }
+                    
+                    // Refresh the page to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the request.');
+            })
+            .finally(() => {
+                // Restore button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        });
+
+        // Maintenance modal (placeholder)
+        function openMaintenanceModal() {
+            // For now, redirect to chat with a maintenance message
+            const message = "I need to report a maintenance issue in my room.";
+            localStorage.setItem('pendingMessage', message);
+            window.location.href = '/chat/';
+        }
+
+        // Digital pass modal functions
+        function showDigitalPassModal(digitalPass, message) {
+            document.getElementById('digitalPassModal').classList.remove('hidden');
+            document.getElementById('approvalMessage').textContent = message;
+            document.getElementById('passNumber').textContent = digitalPass.pass_number;
+            document.getElementById('passFromDate').textContent = formatDate(digitalPass.from_date);
+            document.getElementById('passToDate').textContent = formatDate(digitalPass.to_date);
+            document.getElementById('passTotalDays').textContent = digitalPass.total_days;
+            document.getElementById('verificationCode').textContent = digitalPass.verification_code;
+        }
+
+        function closeDigitalPassModal() {
+            document.getElementById('digitalPassModal').classList.add('hidden');
+        }
+
+        function downloadPass() {
+            const passNumber = document.getElementById('passNumber').textContent;
+            if (passNumber && passNumber !== '-') {
+                // Open PDF download in new tab
+                window.open(`/api/pass/${passNumber}/download/`, '_blank');
+            } else {
+                alert('Pass number not available');
+            }
+        }
+
+        function viewPass(passNumber) {
+            // Open PDF view in new tab
+            window.open(`/api/pass/${passNumber}/view/`, '_blank');
+        }
+
+        function downloadPassFromList(passNumber) {
+            // Download PDF from the passes list
+            window.open(`/api/pass/${passNumber}/download/`, '_blank');
+        }
+
+        // Load leave request summary (non-blocking)
+        function loadLeaveRequestSummary() {
+            try {
+                // Get leave request data from the page context
+                const totalRequests = {{ recent_absence_records|length }};
+                const approvedRequests = {% with approved=recent_absence_records|dictsort:"status" %}{{ approved|length }}{% endwith %} || 0;
+                
+                // Update counters
+                document.getElementById('totalLeaveRequests').textContent = totalRequests;
+                document.getElementById('approvedLeaveRequests').textContent = approvedRequests;
+                document.getElementById('pendingLeaveRequests').textContent = Math.max(0, totalRequests - approvedRequests);
+                
+                // Simple display
+                if (totalRequests === 0) {
+                    document.getElementById('leaveRequestsList').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                            <p>No leave requests yet</p>
+                            <button onclick="openLeaveRequestModal()" class="inline-block mt-3 text-blue-600 hover:text-blue-700 font-medium">
+                                <i class="fas fa-plus mr-1"></i>Submit New Request
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading leave summary:', error);
+                // Silently fail - not critical
+            }
+        }
+
+        // Load digital passes on page load
+        function loadDigitalPasses() {
+            console.log('Loading digital passes...');
+            fetch('/api/digital-passes/', {
+                credentials: 'include'
+            })
+                .then(response => {
+                    console.log('Passes response status:', response.status);
+                    if (response.status === 401) {
+                        console.warn('Unauthenticated digital passes request - redirecting to login');
+                        window.location.href = '/auth/login/';
+                        return null;
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return; // Redirect was triggered
+                    console.log('Passes data:', data);
+                    if (data.success) {
+                        displayDigitalPasses(data.passes);
+                    } else {
+                        const errorMsg = data.error || 'Error loading passes';
+                        console.warn('Passes error:', errorMsg);
+                        document.getElementById('approvedPassesList').innerHTML = `
+                            <div class="text-center py-4 text-yellow-500">
+                                <i class="fas fa-inbox text-xl mb-2 opacity-50"></i>
+                                <p class="text-xs">${errorMsg}</p>
+                            </div>
+                        `;
+                        document.getElementById('pendingPassesList').innerHTML = `
+                            <div class="text-center py-4 text-yellow-500">
+                                <i class="fas fa-inbox text-xl mb-2 opacity-50"></i>
+                                <p class="text-xs">${errorMsg}</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading digital passes:', error);
+                    document.getElementById('approvedPassesList').innerHTML = `
+                        <div class="text-center py-4 text-red-500">
+                            <i class="fas fa-exclamation-triangle text-lg mb-2"></i>
+                            <p class="text-xs">Failed to load passes</p>
+                        </div>
+                    `;
+                    document.getElementById('pendingPassesList').innerHTML = `
+                        <div class="text-center py-4 text-red-500">
+                            <i class="fas fa-exclamation-triangle text-lg mb-2"></i>
+                            <p class="text-xs">Failed to load passes</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function displayDigitalPasses(passes) {
+            const approvedContainer = document.getElementById('approvedPassesList');
+            const pendingContainer = document.getElementById('pendingPassesList');
+            
+            if (!passes || passes.length === 0) {
+                approvedContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-inbox text-xl mb-2 opacity-50"></i>
+                        <p class="text-xs">No passes</p>
+                    </div>
+                `;
+                pendingContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-inbox text-xl mb-2 opacity-50"></i>
+                        <p class="text-xs">No pending</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Split passes into approved and pending
+            const approvedPasses = passes.filter(p => p.status === 'approved' || p.is_valid);
+            const pendingPasses = passes.filter(p => p.status !== 'approved' && !p.is_valid);
+
+            // Display approved passes
+            if (approvedPasses.length === 0) {
+                approvedContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-inbox text-xl mb-2 opacity-50"></i>
+                        <p class="text-xs">No approved</p>
+                    </div>
+                `;
+            } else {
+                const approvedHtml = approvedPasses.slice(0, 3).map(pass => {
+                    return `
+                        <div class="border border-green-200 rounded-lg p-3 text-sm bg-green-50">
+                            <div class="flex items-start justify-between mb-1">
+                                <div class="font-medium text-green-800 truncate">${pass.pass_number}</div>
+                                <span class="px-2 py-0.5 bg-green-200 text-green-800 rounded text-xs whitespace-nowrap ml-2">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>
+                            </div>
+                            <div class="text-xs text-green-700 mb-2">${formatDate(pass.from_date)} - ${formatDate(pass.to_date)}</div>
+                            <div class="flex space-x-2">
+                                <button onclick="viewPass('${pass.pass_number}')" class="flex-1 bg-green-200 text-green-800 py-1 px-2 rounded text-xs hover:bg-green-300">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="downloadPassFromList('${pass.pass_number}')" class="flex-1 bg-green-200 text-green-800 py-1 px-2 rounded text-xs hover:bg-green-300">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                approvedContainer.innerHTML = approvedHtml;
+            }
+
+            // Display pending passes
+            if (pendingPasses.length === 0) {
+                pendingContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-inbox text-xl mb-2 opacity-50"></i>
+                        <p class="text-xs">No pending</p>
+                    </div>
+                `;
+            } else {
+                const pendingHtml = pendingPasses.slice(0, 3).map(pass => {
+                    return `
+                        <div class="border border-yellow-200 rounded-lg p-3 text-sm bg-yellow-50">
+                            <div class="flex items-start justify-between mb-1">
+                                <div class="font-medium text-yellow-800 truncate">${pass.pass_number}</div>
+                                <span class="px-2 py-0.5 bg-yellow-200 text-yellow-800 rounded text-xs whitespace-nowrap ml-2">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                            </div>
+                            <div class="text-xs text-yellow-700 mb-2">${formatDate(pass.from_date)} - ${formatDate(pass.to_date)}</div>
+                            <div class="flex space-x-2">
+                                <button onclick="viewPass('${pass.pass_number}')" class="flex-1 bg-yellow-200 text-yellow-800 py-1 px-2 rounded text-xs hover:bg-yellow-300">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="downloadPassFromList('${pass.pass_number}')" class="flex-1 bg-yellow-200 text-yellow-800 py-1 px-2 rounded text-xs hover:bg-yellow-300">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                pendingContainer.innerHTML = pendingHtml;
+            }
+        }
+
+        function refreshDigitalPasses() {
+            document.getElementById('approvedPassesList').innerHTML = `
+                <div class="text-center py-4 text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                    <p class="text-xs">Refreshing...</p>
+                </div>
+            `;
+            document.getElementById('pendingPassesList').innerHTML = `
+                <div class="text-center py-4 text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                    <p class="text-xs">Refreshing...</p>
+                </div>
+            `;
+            loadDigitalPasses();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Utility function to get CSRF token
+        function getCookie(name) {
+            // First try to get from meta tag
+            const token = document.querySelector('meta[name="csrf-token"]');
+            if (token && name === 'csrftoken') {
+                return token.getAttribute('content');
+            }
+            
+            // Fallback to cookie
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // ===== GUEST REQUEST FUNCTIONS =====
+        function openGuestRequestModal() {
+            document.getElementById('guestRequestModal').classList.remove('hidden');
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('guestStartDate').min = today;
+            document.getElementById('guestEndDate').min = today;
+        }
+
+        function closeGuestRequestModal() {
+            document.getElementById('guestRequestModal').classList.add('hidden');
+            document.getElementById('guestRequestForm').reset();
+        }
+
+        // Handle guest request form submission
+        document.getElementById('guestRequestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const guestName = document.getElementById('guestName').value;
+            const guestPhone = document.getElementById('guestPhone').value;
+            const startDate = document.getElementById('guestStartDate').value;
+            const endDate = document.getElementById('guestEndDate').value;
+            const purpose = document.getElementById('guestPurpose').value;
+            
+            if (!guestName || !startDate || !endDate) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            submitButton.disabled = true;
+            
+            fetch('/api/guest-requests/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    guest_name: guestName,
+                    guest_phone: guestPhone,
+                    start_date: startDate,
+                    end_date: endDate,
+                    purpose: purpose
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.id || data.request_id) {
+                    closeGuestRequestModal();
+                    alert('✅ Guest request submitted successfully!');
+                    loadGuestRequests();
+                } else {
+                    alert('❌ Error: ' + (data.error || 'Failed to submit request'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the request.');
+            })
+            .finally(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        });
+
+        // Load guest requests
+        function loadGuestRequests() {
+            console.log('Loading guest requests...');
+            fetch('/api/guest-requests/', {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    console.log('Guest requests response status:', response.status);
+                    if (response.status === 401) {
+                        console.warn('Unauthenticated guest requests - redirecting to login');
+                        window.location.href = '/auth/login/';
+                        return null;
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return; // Redirect was triggered
+                    console.log('Guest requests data:', data);
+                    let requests = [];
+                    if (Array.isArray(data)) {
+                        requests = data;
+                    } else if (data.results) {
+                        requests = data.results;
+                    } else if (data.success === false) {
+                        console.error('API error:', data.error);
+                        document.getElementById('guestRequestsList').innerHTML = `
+                            <div class="text-center py-6 text-gray-500">
+                                <i class="fas fa-inbox text-2xl mb-2 opacity-50"></i>
+                                <p class="text-xs">${data.error || 'Error loading requests'}</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    console.log('Guest requests count:', requests.length);
+                    displayGuestRequests(requests);
+                })
+                .catch(error => {
+                    console.error('Error loading guest requests:', error);
+                    document.getElementById('guestRequestsList').innerHTML = `
+                        <div class="text-center py-6 text-gray-500">
+                            <i class="fas fa-inbox text-2xl mb-2 opacity-50"></i>
+                            <p class="text-xs">No guest requests</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function displayGuestRequests(requests) {
+            const container = document.getElementById('guestRequestsList');
+            
+            if (!requests || requests.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-inbox text-2xl mb-2 opacity-50"></i>
+                        <p class="text-xs">No guest requests</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const requestsHtml = requests.slice(0, 5).map(request => {
+                const statusColor = request.status === 'approved' ? 'green' : request.status === 'rejected' ? 'red' : 'yellow';
+                const statusIcon = request.status === 'approved' ? 'check-circle' : request.status === 'rejected' ? 'times-circle' : 'clock';
+                
+                return `
+                    <div class="border border-gray-200 rounded-lg p-3 text-sm">
+                        <div class="flex items-start justify-between mb-1">
+                            <div class="font-medium text-gray-800 truncate">${request.guest_name}</div>
+                            <span class="px-2 py-0.5 bg-${statusColor}-100 text-${statusColor}-800 rounded text-xs whitespace-nowrap ml-2">
+                                <i class="fas fa-${statusIcon}"></i>
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-600">${formatDate(request.start_date)} - ${formatDate(request.end_date)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = requestsHtml;
+        }
+
+        // ===== MAINTENANCE REQUEST FUNCTIONS =====
+        function openMaintenanceRequestModal() {
+            document.getElementById('maintenanceRequestModal').classList.remove('hidden');
+        }
+
+        function closeMaintenanceRequestModal() {
+            document.getElementById('maintenanceRequestModal').classList.add('hidden');
+            document.getElementById('maintenanceRequestForm').reset();
+        }
+
+        // Handle maintenance request form submission
+        document.getElementById('maintenanceRequestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const issueType = document.getElementById('issueType').value;
+            const priority = document.getElementById('maintenancePriority').value;
+            const description = document.getElementById('maintenanceDescription').value;
+            
+            if (!issueType || !description) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            submitButton.disabled = true;
+            
+            fetch('/api/maintenance-requests/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    issue_type: issueType,
+                    priority: priority,
+                    description: description,
+                    room_number: '{{ student.room_number }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.id || data.request_id) {
+                    closeMaintenanceRequestModal();
+                    alert('✅ Maintenance request submitted successfully!');
+                    loadMaintenanceRequests();
+                } else {
+                    alert('❌ Error: ' + (data.error || 'Failed to submit request'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the request.');
+            })
+            .finally(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        });
+
+        // Load maintenance requests
+        function loadMaintenanceRequests() {
+            console.log('Loading maintenance requests...');
+            fetch('/api/maintenance-requests/', {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    console.log('Maintenance response status:', response.status);
+                    if (response.status === 401) {
+                        console.warn('Unauthenticated maintenance requests - redirecting to login');
+                        window.location.href = '/auth/login/';
+                        return null;
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return; // Redirect was triggered
+                    console.log('Maintenance data:', data);
+                    let requests = [];
+                    if (Array.isArray(data)) {
+                        requests = data;
+                    } else if (data.results) {
+                        requests = data.results;
+                    } else if (data.success === false) {
+                        console.error('API error:', data.error);
+                        document.getElementById('maintenanceRequestsList').innerHTML = `
+                            <div class="text-center py-6 text-gray-500">
+                                <i class="fas fa-inbox text-2xl mb-2 opacity-50"></i>
+                                <p class="text-xs">${data.error || 'Error loading requests'}</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    console.log('Maintenance count:', requests.length);
+                    displayMaintenanceRequests(requests);
+                })
+                .catch(error => {
+                    console.error('Error loading maintenance requests:', error);
+                    document.getElementById('maintenanceRequestsList').innerHTML = `
+                        <div class="text-center py-6 text-gray-500">
+                            <i class="fas fa-inbox text-2xl mb-2 opacity-50"></i>
+                            <p class="text-xs">No maintenance requests</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function displayMaintenanceRequests(requests) {
+            const container = document.getElementById('maintenanceRequestsList');
+            
+            if (!requests || requests.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        <i class="fas fa-inbox text-2xl mb-2 opacity-50"></i>
+                        <p class="text-xs">No maintenance requests</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const requestsHtml = requests.slice(0, 5).map(request => {
+                const statusColor = request.status === 'completed' ? 'green' : request.status === 'in_progress' ? 'blue' : request.status === 'assigned' ? 'indigo' : 'yellow';
+                const priorityColor = request.priority === 'emergency' ? 'red' : request.priority === 'high' ? 'orange' : request.priority === 'medium' ? 'yellow' : 'green';
+                
+                return `
+                    <div class="border border-gray-200 rounded-lg p-3 text-sm">
+                        <div class="flex items-start justify-between mb-1">
+                            <div class="font-medium text-gray-800 truncate">${request.issue_type.charAt(0).toUpperCase() + request.issue_type.slice(1)}</div>
+                            <div class="flex space-x-1 ml-2">
+                                <span class="px-1.5 py-0.5 bg-${priorityColor}-100 text-${priorityColor}-800 rounded text-xs whitespace-nowrap">
+                                    ${request.priority.charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-600">Room ${request.room_number}</div>
+                        <div class="text-xs text-gray-500 mt-1 truncate">${request.description.substring(0, 40)}...</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = requestsHtml;
+        }
+
+        // Consolidated page load - Load all data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Student dashboard loaded - initializing...');
+            
+            // Load all requests in parallel
+            loadGuestRequests();
+            loadMaintenanceRequests();
+            loadDigitalPasses();
+            
+            // Load leave summary asynchronously after a short delay (non-blocking)
+            setTimeout(() => {
+                loadLeaveRequestSummary();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
