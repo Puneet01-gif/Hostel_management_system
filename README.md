@@ -1,4 +1,4 @@
-# Hostel Coordination System
+# AI-Powered Hostel Operations & Access Management System
 
 ## Problem Statement
 
