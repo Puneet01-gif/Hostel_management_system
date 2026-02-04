@@ -281,27 +281,10 @@ hostel_coordination/
 │   │   ├── rule_engine_service.py         # Rule evaluation engine
 │   │   └── supabase_service.py            # Database operations
 │   │
-│   ├── management/commands/      # Django management commands
-│   │   ├── generate_daily_summary.py      # Generate daily reports
-│   │   ├── send_daily_summary_email.py    # Email daily summaries
-│   │   ├── send_urgent_sms.py             # SMS notifications
-│   │   ├── setup_supabase_schema.py       # Database schema setup
-│   │   └── test_leave_emails.py           # Email template testing
-│   │
-│   ├── tests/                    # Test suite
-│   │   ├── test_api_endpoints.py          # API endpoint tests
-│   │   ├── test_authentication_helper.py  # Authentication tests
-│   │   ├── test_dashboard_service.py      # Dashboard logic tests
-│   │   ├── test_digital_pass_display.py   # Pass display tests
-│   │   ├── test_security.py               # Security feature tests
-│   │   ├── test_email_notifications.py    # Email service tests
-│   │   ├── test_comprehensive_e2e.py      # End-to-end tests
-│   │   └── test_end_to_end_chat_workflow.py  # Chat workflow tests
 │   │
 │   ├── sql/                      # Database schemas
 │   │   └── supabase_schema.sql   # Supabase PostgreSQL schema
 │   │
-│   └── migrations/               # Django database migrations
 │
 ├── hostel_coordination/          # Django project settings
 │   ├── settings.py              # Main configuration
@@ -335,23 +318,7 @@ hostel_coordination/
 │   │   └── leave_escalation.html
 │   └── base.html                # Base template
 │
-├── static/                      # Static files
-│   ├── css/
-│   │   └── chat.css
-│   └── js/
-│       ├── chat.js
-│       ├── staff-dashboard.js
-│       └── pass-history.js
-│
-├── media/                       # User-uploaded and generated files
-│   ├── passes/                  # Generated PDF passes
-│   └── chat_uploads/            # Chat file uploads
-│
-├── logs/                        # Application logs
-│   └── django.log
-│
 ├── requirements.txt             # Python dependencies
-├── pytest.ini                   # Pytest configuration
 ├── .env.example                 # Environment template
 ├── .gitignore                   # Git ignore rules
 ├── manage.py                    # Django management script
