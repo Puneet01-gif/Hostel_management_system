@@ -484,68 +484,6 @@ Returns CSV file with pass history data.
   "priority": "medium"
 }
 ```
-
-### Dashboard Data
-
-#### Get Dashboard Data
-
-`GET /api/dashboard-data/`
-
----
-
-## Testing
-
-### Test Structure
-
-```
-core/tests/
-├── test_api_endpoints.py              # API endpoint tests
-├── test_authentication_helper.py      # Authentication logic tests
-├── test_dashboard_service.py          # Dashboard data tests
-├── test_digital_pass_display.py       # Pass display tests
-├── test_security.py                   # Security feature tests
-├── test_email_notifications.py        # Email service tests
-├── test_comprehensive_e2e.py          # End-to-end workflow tests
-└── test_end_to_end_chat_workflow.py   # Chat interaction tests
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=core --cov-report=html
-
-# Run specific test file
-pytest core/tests/test_api_endpoints.py
-
-# Run with verbose output
-pytest -v
-
-# Run tests matching pattern
-pytest -k "test_leave"
-```
-
-### Property-Based Testing
-
-The project uses Hypothesis for property-based testing:
-
-```python
-@given(
-    start_date=dates(),
-    duration=integers(min_value=1, max_value=30)
-)
-def test_leave_duration_property(start_date, duration):
-    """Property: end_date - start_date should always equal duration"""
-    end_date = start_date + timedelta(days=duration)
-    absence = AbsenceRecord(start_date=start_date, end_date=end_date)
-    assert absence.duration_days == duration
-```
-
----
-
 ## Management Commands
 
 ```bash
@@ -565,48 +503,6 @@ python manage.py setup_supabase_schema
 python manage.py test_leave_emails
 ```
 
----
-
-## Security Considerations
-
-### Implemented Security Features
-
-1. **Authentication & Authorization**
-   - Session-based authentication
-   - Role-based access control (RBAC)
-   - Password hashing with PBKDF2
-   - First-time password change enforcement
-
-2. **Input Validation**
-   - Django form validation
-   - DRF serializer validation
-   - Custom input sanitization
-   - SQL injection prevention (ORM)
-
-3. **Data Protection**
-   - HTTPS enforcement in production
-   - Secure cookie flags (HttpOnly, Secure, SameSite)
-   - CSRF protection
-   - XSS prevention
-
-4. **Database Security**
-   - Row-level security (RLS) in Supabase
-   - Prepared statements
-   - Connection encryption
-   - Regular backups
-
-5. **API Security**
-   - Rate limiting
-   - Request size limits
-   - CORS configuration
-
-6. **Audit & Monitoring**
-   - Comprehensive audit logging
-   - Security event logging
-   - Failed login tracking
-
----
-
 ## Deployment
 
 ### Production Checklist
@@ -617,10 +513,6 @@ python manage.py test_leave_emails
 - [ ] Set up SSL/HTTPS
 - [ ] Configure ALLOWED_HOSTS
 - [ ] Configure email service (SMTP)
-- [ ] Set up monitoring and logging
-- [ ] Configure backup strategy
-- [ ] Set up rate limiting
-- [ ] Review security settings
 
 ### Production Environment Variables
 
